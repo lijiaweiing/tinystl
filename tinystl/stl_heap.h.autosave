@@ -1,0 +1,7 @@
+﻿#ifndef STL_HEAP_H
+#define STL_HEAP_H
+#include<cmath>
+namespace tinystl {
+  template<>
+}
+#endif // STL_HEAP_H
