@@ -4,6 +4,8 @@
 #include"stl_iterator.h"
 #include<cstring>
 #include"__type_traits.h"
+#include<cstddef>
+#include<utility>
 namespace tinystl {
 
 //fill()
@@ -228,12 +230,11 @@ bool lexicographical_compare(InputIterator1 first1,InputIterator1 last1,InputIte
     }
   return first1 == last1 && first2 != last2;
 }
-template<class T>
-inline void swap(T& a,T& b)
-{
-  T tmp = b;
-  b = a;
-  a = tmp;
+template<typename T>void swap(T& a, T& b)
+  {
+      T tmp(std::move(a)); // move a to tmp
+      a = std::move(b);    // move b to a
+      b = std::move(tmp);  // move tmp to b
 }
 }
 #endif // STL_ALGOBASE_H

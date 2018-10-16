@@ -7,12 +7,7 @@
 #include"stl_construct.h"
 #include<initializer_list>
 namespace tinystl {
-template<typename T>void swap(T& a, T& b)
-  {
-      T tmp(std::move(a)); // move a to tmp
-      a = std::move(b);    // move b to a
-      b = std::move(tmp);  // move tmp to b
-}
+
 template<class T,class Alloc = alloc>class vector
 {
 public:

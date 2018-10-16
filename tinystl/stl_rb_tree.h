@@ -21,7 +21,7 @@ namespace tinystl {
     base_ptr right;
     static base_ptr minimum(base_ptr a)
     {
-      while (a->left != 0) {
+      while (a->left != nullptr) {
          a = a->left;
         }
       return a;
@@ -29,7 +29,7 @@ namespace tinystl {
     static base_ptr maximum(base_ptr a)
     {
 
-      while (a->right != 0) {
+      while (a->right != nullptr) {
           a = a->right;
         }
       return a;
@@ -51,10 +51,10 @@ namespace tinystl {
     //实现operator++
     void increment()
     {
-      if(node->right != 0) //case1 如果有右节点
+      if(node->right != nullptr) //case1 如果有右节点
         {
           node = node->right;
-          while (node->right != 0) {
+          while (node->right != nullptr) {
               node = node->right;
 
             }
@@ -78,10 +78,10 @@ namespace tinystl {
         {
           node = node->right;
         }
-      else if(node->left != 0)
+      else if(node->left != nullptr)
         {
           base_ptr y = node->left;
-          while (y->right != 0) {
+          while (y->right != nullptr) {
               y = y->right;
 
             }
@@ -155,7 +155,7 @@ namespace tinystl {
   {
     _rb_tree_node_base* y = x->right;
     x->right = y->left;
-    if(y->left != 0)
+    if(y->left != nullptr)
       {
         y->left->parent = x;
       }
@@ -176,7 +176,7 @@ namespace tinystl {
    {
     _rb_tree_node_base * y = x->left;
     x->left = y->right;
-    if(y->right != 0)
+    if(y->right != nullptr)
       {
        y->right->parent = x;
       }
@@ -247,7 +247,25 @@ namespace tinystl {
 
     root->color = _rb_tree_red;
   }
-
+/*inline rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
+{
+  while (x!= root && x->color == _rb_tree_black) {
+      if(x == x->parent->left)
+        {
+          _rb_tree_node_base *w = x->parent->right;
+          //case1 x 的兄弟节点w 为红色
+          if(w->color == _rb_tree_red)
+            {
+             w->color = _rb_tree_black;
+             x->parent->color = _rb_tree_red;
+             _rb_rotate_left(x->parent,root);
+            }
+          else {
+                  
+                }
+        }
+    }
+}*/
   template<class Key,class Value,class KeyOfvale,class Compare,class ALloc= alloc>
   class rb_tree
   {
@@ -300,31 +318,31 @@ namespace tinystl {
     link_type header;
     Compare key_compare;
 
-    link_type& root()const{return (link_type&)header->parent;}
-    link_type& leftmost()const{ return (link_type&)header->left;}
-    link_type& rightmost()const{return (link_type&)header->right;}
+    link_type& root()const{return const_cast<link_type&>(header->parent);}
+    link_type& leftmost()const{ return const_cast<link_type&>(header->left);}
+    link_type& rightmost()const{return const_cast<link_type&>(header->right);}
     //获取节点成员
-    static link_type& left(link_type x){return (link_type&)x->left;}
-    static link_type&right(link_type x){return (link_type&)x->right;}
-    static link_type& parent(link_type x){return (link_type&)x->parent;}
-    static reference value(link_type x){return ((link_type&)x)->value_file;}
+    static link_type& left(link_type x){return const_cast<link_type&>(x->left);}
+    static link_type&right(link_type x){return const_cast<link_type&>(x->right);}
+    static link_type& parent(link_type x){return const_cast<link_type&>(x->parent);}
+    static reference value(link_type x){return  (static_cast<link_type&>(x))->value_file;}
     static const Key& key(link_type x){return KeyOfvale()(value(x));}
-    static color_type& color(link_type x){return (color_type&)x->color;}
+    static color_type& color(link_type x){return  static_cast<color_type&>(x->color) ;}
 
-    static link_type& left(base_ptr x){return (link_type&)x->left;}
-    static link_type&right(base_ptr x){return (link_type&)x->right;}
-    static link_type& parent(base_ptr x){return (link_type&)x->parent;}
-    static reference value(base_ptr x){return ((link_type)x)->value_file;}
+    static link_type& left(base_ptr x){return  static_cast<link_type&>(x->left) ;}
+    static link_type&right(base_ptr x){return static_cast<link_type&>(x->right) ;}
+    static link_type& parent(base_ptr x){return  static_cast<link_type&>(x->parent) ;}
+    static reference value(base_ptr x){return (static_cast<link_type>(x))->value_file;}
     static const Key& key(base_ptr x){return KeyOfvale() (value(link_type( x )) );}
-    static color_type& color(base_ptr x){return (color_type&)x->color;}
+    static color_type& color(base_ptr x){return static_cast<color_type&>(x->color);}
 
     static link_type minimum(link_type x)
     {
-      return (link_type) _rb_tree_node_base::minimum(x);
+      return static_cast<link_type>(_rb_tree_node_base::minimum(x)) ;
     }
     static link_type maximum(link_type x)
     {
-      return (link_type)_rb_tree_node_base::maximum(x);
+      return static_cast<link_type>(_rb_tree_node_base::maximum(x)) ;
     }
   public:
     typedef _rb_tree_iterator<Value,reference,pointer> iterator;
@@ -342,6 +360,19 @@ namespace tinystl {
       leftmost() = header;
       rightmost() = header;
     }
+    void _rb_transplant(link_type x,link_type y)
+    {
+      if(x->parent == header)
+        {
+          root() = y;
+        }
+      else if (x == x->parent->left) {
+          x->parent->right = y;
+        }else {
+          x->parent->right = y;
+        }
+       y->parent = x->parent;
+    }
     
   public:
     friend bool operator==(const rb_tree&,const rb_tree&);
@@ -352,8 +383,9 @@ namespace tinystl {
     rb_tree &operator =(const rb_tree & x);
     iterator __insert(base_ptr x__,base_ptr y__,const value_type &v)
     {
-      link_type x = (link_type )x__;
-      link_type y = (link_type) y__;
+
+      link_type x = static_cast<link_type>(x__) ;
+      link_type y = static_cast<link_type>(y__) ;
       link_type z;
       if(y == header || x!= 0||key_compare(KeyOfvale()(v),key(y)))
         {
@@ -470,11 +502,7 @@ bool operator !=(const rb_tree<Key,Value,KeyOfvale,Compare,ALloc>& a,const rb_tr
 {
   return !(a == b);
 }
-template<class Key,class Value,class KeyOfvale,class Compare,class ALloc>
-rb_tree<Key,Value,KeyOfvale,Compare,ALloc>::rb_tree()
-{
-  
-}
+
 }
 
 
