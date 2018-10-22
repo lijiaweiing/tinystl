@@ -6,6 +6,7 @@
 #include"alloc.h"
 #include"stl_construct.h"
 #include"stl_algobase.h"
+#include<iostream>
 namespace tinystl {
   typedef bool __rb_tree_color_type;
   const __rb_tree_color_type _rb_tree_red = false;
@@ -247,25 +248,68 @@ namespace tinystl {
 
     root->color = _rb_tree_red;
   }
-/*inline rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
+//删除
+inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
 {
-  while (x!= root && x->color == _rb_tree_black) {
-      if(x == x->parent->left)
-        {
-          _rb_tree_node_base *w = x->parent->right;
-          //case1 x 的兄弟节点w 为红色
-          if(w->color == _rb_tree_red)
-            {
-             w->color = _rb_tree_black;
-             x->parent->color = _rb_tree_red;
-             _rb_rotate_left(x->parent,root);
+  while(x != root && x->color != _rb_tree_red){
+      if (x->parent->left == x){
+          auto w = x->parent->right;
+          //情况1 x 的兄弟结点是红色
+          if (w->color == _rb_tree_red ){
+              w->color = _rb_tree_black;
+              x->parent->color = _rb_tree_red;
+              _rb_rotate_left(x->parent , root);
+              w = x->parent->right;
             }
-          else {
-                  
-                }
-        }
+          //  情况2 x 的兄弟结点w是黑色 w的两个子结点是黑色
+          if (w->left->color == _rb_tree_black && w->right->color == _rb_tree_black ){
+              w->color = _rb_tree_red;
+              x = x->parent;
+            }else {
+               // 情况3 x的兄弟结点w是黑色 w的左孩子是红色，w的右孩子是黑色
+              if (w->right->color == _rb_tree_black){
+                  w->left->color = _rb_tree_black;
+                  w->color = _rb_tree_red;
+                  _rb_rotate_right(w, root);
+              }
+              //情况4 x 的兄弟结点w是黑色，且w的右孩子是红色
+              w->color = _rb_tree_red;
+              w->right->color = _rb_tree_black;
+              x->parent->color = _rb_tree_black;
+              _rb_rotate_left(x->parent , root);
+              x = root;
+            }
+    }else {
+         auto w = x->parent->left;
+         //情况1 x 的兄弟结点w是红色
+         if(w->color == _rb_tree_red){
+              w->color = _rb_tree_black;
+              x->parent->color = _rb_tree_red;
+              _rb_rotate_right(x->parent , root);
+           }
+         //情况2 x的兄弟结点w是黑色  w的两个子结点是黑色
+         if (w->right->color == _rb_tree_black && w->left->color == _rb_tree_black){
+             w->color = _rb_tree_red;
+             x = x->parent;
+           }else {
+              //情况3 x的兄弟结点w是黑色的
+             if(w->left->color == _rb_tree_black){
+                 w->right->color = _rb_tree_red;
+                 w->color = _rb_tree_red;
+                 _rb_rotate_left(w, root);
+               }
+             w->color = _rb_tree_red;
+             w->left->color = _rb_tree_black;
+             _rb_rotate_right(x->parent , root);
+             x = root;
+           }
+
+
     }
-}*/
+
+    }
+  x->color = _rb_tree_red;
+}
   template<class Key,class Value,class KeyOfvale,class Compare,class ALloc= alloc>
   class rb_tree
   {

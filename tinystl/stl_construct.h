@@ -21,7 +21,7 @@ template<typename Iter,class T>inline void _destory(Iter first,Iter last,T*)
     _destory_aux(first,last,trivial_destructor());
 
 }
-template<typename Iter>inline void _destory_aux(Iter first,Iter last,__true_type){}
+template<typename Iter>inline void _destory_aux(Iter ,Iter ,__true_type){}
 
 template<typename Iter>inline void _destory_aux(Iter first,Iter last,__false_type)
 {

@@ -6,6 +6,12 @@
 #include"stl_uninitialized.h"
 #include"stl_construct.h"
 #include<initializer_list>
+//一棵红黑树满足以下定理
+//1 每个结点不是红色就是黑色
+//2 根节点是黑色
+//3 如果一个结点是红色，那么它的子节点是黑色的
+//4 黑高都是相同的
+/*
 namespace tinystl {
 
 template<class T,class Alloc = alloc>class vector
@@ -163,6 +169,72 @@ private:
 
 
 };
+
+}*/
+namespace tinystl {
+  typedef bool __rb_tree_color_type;
+  const __rb_tree_color_type __rb_tree_red = false;  //设置红节点为false
+  const __rb_tree_color_type __rb_tree_black = true;  //设置黑节点为true
+  //红黑树的初始节点
+  struct __rb_tree_node_base{
+    typedef __rb_tree_node_base* base_ptr;
+    typedef  __rb_tree_color_type color_type;
+    color_type color;
+    base_ptr parent;
+    base_ptr left;
+    base_ptr right;
+
+    static base_ptr minimum(base_ptr x){
+      while (x->left != nullptr) {
+          x = x->left;
+        }
+      return  x;
+    }
+    static base_ptr maximum(base_ptr x){
+      while (x->right != nullptr) {
+          x = x->right;
+        }
+      return  x;
+    }
+  };
+  template<typename Value> struct __rb_tree_node:public __rb_tree_node_base{
+    typedef  __rb_tree_node<Value>* link_type;
+     Value vlaue_field;
+  };
+  //对map表构建迭代器
+  struct __rb_tree_iterator_base{
+    typedef  __rb_tree_node_base::base_ptr base_ptr;
+    typedef bidirectional_iterator_tag iterator_category;
+    base_ptr node;
+    //结点自增
+    void  increment(){
+      //
+      if (node->right != nullptr){
+          node = node->right;
+          while (node->left != nullptr) {
+              node = node->right;
+            }
+        }else {
+            auto y = node->parent;
+            while (node == y->right) {
+                node = y;
+                y = y->parent;
+              }
+            if (node->right != y){
+                node = y;
+              }
+        }
+    }
+    void decrement(){
+      if (node->color == __rb_tree_red && node->parent->parent){
+          node = node->right;
+        }else if(node ->left != nullptr){
+          base_ptr y = node->left;
+
+        }
+    }
+
+  };
 
 }
 #endif // STL_VECTOR_H
