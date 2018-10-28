@@ -248,7 +248,17 @@ namespace tinystl {
 
     root->color = _rb_tree_red;
   }
-//删除
+  inline void rb_Transplation(_rb_tree_node_base * u ,_rb_tree_node_base *v ,_rb_tree_node_base *& root){
+    if(u->parent == nullptr){
+        root = u;
+      }else if(u == v->parent->left){
+        u->parent->left = v;
+      }else {
+        u->parent->right = v;
+      }
+    v->parent = u->parent;
+  }
+//删除后数据调整
 inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
 {
   while(x != root && x->color != _rb_tree_red){
@@ -278,6 +288,7 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
               x->parent->color = _rb_tree_black;
               _rb_rotate_left(x->parent , root);
               x = root;
+              break;
             }
     }else {
          auto w = x->parent->left;
@@ -302,6 +313,7 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
              w->left->color = _rb_tree_black;
              _rb_rotate_right(x->parent , root);
              x = root;
+             break;
            }
 
 
@@ -310,6 +322,7 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
     }
   x->color = _rb_tree_red;
 }
+
   template<class Key,class Value,class KeyOfvale,class Compare,class ALloc= alloc>
   class rb_tree
   {
@@ -395,7 +408,64 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
 
     void clear();
     link_type __copy(link_type x,link_type y);
-    void _erase(link_type x);
+    void rb_transpalnt(link_type u,link_type v){
+        if(parent(u) == nullptr){
+            root() = v;
+        }else if (u == (u->parent)->left) {
+            u->parent->left =  v;
+        }else {
+            u->parent->right = v;
+        }
+        v->parent = u->parent;
+    }
+    //有问题缺少更改leftmost rightmost 的问题
+    void _erase(link_type z){
+      link_type y = z;
+       __rb_tree_color_type y_origin_color= y->color;
+      link_type x = nullptr;
+      if(left(z) == nullptr){
+            x = right(z);
+            rb_transpalnt(z , z->right);
+        }else if (right(z) == nullptr) {
+            x = left(z);
+            rb_transpalnt(z, z->left);
+        }else {
+          y = minimum(right(z));
+         y_origin_color = y->color;
+          x = right(y);
+          if (parent(y) == z){
+              parent(x) = y;
+          }else {
+              right(y) = right(z);
+
+          }
+
+          rb_transpalnt(z, y);
+          y->left = z->left;
+          y->left->parent = y;
+          y->color = z->color;
+
+        }
+      if (y == x){
+          if(leftmost() == z){
+              if(right(x) == nullptr){
+                leftmost() = parent(x);
+              }else {
+                  leftmost() = minimum(x);
+              }
+          }
+          if (rightmost() == z){
+              if(left(x) == nullptr){
+                  rightmost() = parent(x);
+              }else {
+                   rightmost() = maximum(x);
+              }
+          }
+      }
+      if (y_origin_color == _rb_tree_black){
+          rb_delete_fixup(x, root());
+      }
+    }
     void init()//对header 初始化
     {
       header = get_node();
@@ -485,7 +555,7 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
     pair<iterator , bool> insert_unique(const Value &);
     iterator find(const Value & );
 
-    iterator erase(const iterator &);
+    iterator erase(const iterator & x);
     size_type erase(const key_value &);
     iterator erase(const iterator first,const iterator last);
 
