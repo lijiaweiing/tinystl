@@ -419,7 +419,7 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
         v->parent = u->parent;
     }
     //有问题缺少更改leftmost rightmost 的问题
-    void _erase(link_type z){
+    link_type _erase(link_type z){
       link_type y = z;
        __rb_tree_color_type y_origin_color= y->color;
       link_type x = nullptr;
@@ -465,6 +465,7 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
       if (y_origin_color == _rb_tree_black){
           rb_delete_fixup(x, root());
       }
+        return x;
     }
     void init()//对header 初始化
     {
@@ -554,8 +555,32 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
     }
     pair<iterator , bool> insert_unique(const Value &);
     iterator find(const Value & );
+    iterator upper_bound(const key_value & k){
+        link_type y = header;
+        link_type x = root();
+        while (x != nullptr) {
+             y = x;
+             x = key_compare(KeyOfvale()(k) , key(x))?left(x):right(x);
+        }
+        return  iterator(x);
+    }
+    iterator lower_bound(const key_value & k){
+          link_type y = header;
+          link_type x = root();
+          while (x != nullptr) {
+               y = x;
+               x = key_compare(KeyOfvale()(k) , key(x))?right(x) : left(x);
+          }
+          return  iterator(x);
+    }
 
-    iterator erase(const iterator & x);
+    iterator erase(const iterator & x){
+       auto k =  _erase(x);
+        destory_node(x);
+        --node_count;
+        return  iterator(k);
+    }
+
     size_type erase(const key_value &);
     iterator erase(const iterator first,const iterator last);
 
@@ -568,7 +593,7 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
     link_type y = header;
     link_type x =root();
     bool comp = true;
-    while (x != 0) {
+    while (x != nullptr) {
          y = x;
          comp = key_compare(KeyOfvale()(v),key(x));
          x = comp ? left(x):right(x);

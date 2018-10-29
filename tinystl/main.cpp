@@ -16,9 +16,10 @@ int main ()
   mymap['f']=60;
 
   it=mymap.find('b');
-  mymap.erase(it);                   // erasing by iterator
+                 // erasing by iterator
 
-  std::cout<<mymap.erase ('c');                  // erasing by key
+    std::cout<< (*mymap.erase(it)).first<<std::endl;
+// erasing by key
 
   it=mymap.find ('e');
   mymap.erase ( it, mymap.end() );    // erasing by range
