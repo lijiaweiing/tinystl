@@ -403,7 +403,7 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
     }
   public:
     typedef _rb_tree_iterator<Value,reference,pointer> iterator;
-    
+    typedef  _rb_tree_iterator<Value , const_reference , const_pointer> const_iterator;
   private:
 
     void clear();
@@ -580,15 +580,53 @@ inline void rb_delete_fixup(_rb_tree_node_base *x,_rb_tree_node_base *& root)
         --node_count;
         return  iterator(k);
     }
-
-    size_type erase(const key_value &);
+    pair<iterator , iterator> equal_range(const Key& __k);
+    pair<const_iterator , const_iterator> equal_range(const Key & __k)const{
+        return pair<const_iterator, const_iterator>(lower_bound(__k) , upper_bound(__k));
+    }
+    size_type erase(const Key &);
     iterator erase(const iterator first,const iterator last);
-
+    size_type count(const Key &k );
 
   };
   template<class Key,class Value,class KeyOfvale,class Compare,class ALloc>
-  tinystl::pair<typename rb_tree< Key, Value,KeyOfvale,Compare, ALloc>::iterator, bool>
-    rb_tree<Key,Value,KeyOfvale,Compare,ALloc>::insert_unique(const Value & v)
+   typename rb_tree<Key, Value,KeyOfvale,Compare, ALloc>::size_type
+  rb_tree<Key,Value,KeyOfvale,Compare,ALloc>::erase(const Key & k){
+        pair<iterator ,iterator>  p = equal_range(k);
+        size_type n = 0;
+        n = distance(p.first , p.second);
+        erase(p.first , p.second);
+        return  n;
+  }
+  template<class Key,class Value,class KeyOfvale,class Compare,class ALloc>
+  typename  rb_tree< Key, Value,KeyOfvale,Compare, ALloc>::iterator
+  rb_tree<Key,Value,KeyOfvale,Compare,ALloc>::erase(const iterator first , const iterator last){
+      if(first == begin() && last == end() ){
+          clear();
+      }else {
+          while (first != last) {
+              erase(first++);
+          }
+      }
+  }
+
+
+  template<class Key,class Value,class KeyOfvale,class Compare,class ALloc>
+  tinystl::pair<typename rb_tree< Key, Value,KeyOfvale,Compare, ALloc>::iterator, typename rb_tree< Key, Value,KeyOfvale,Compare, ALloc>::iterator>
+  rb_tree<Key,Value,KeyOfvale,Compare,ALloc>::equal_range(const Key & k){
+      return pair<iterator , iterator>(lower_bound(k) , upper_bound(k));
+  }
+  template<class Key,class Value,class KeyOfvale,class Compare,class ALloc>
+  typename rb_tree<Key, Value,KeyOfvale,Compare, ALloc>::size_type
+  rb_tree<Key,Value,KeyOfvale,Compare,ALloc>::count(const Key & k){
+      pair<const_iterator ,const_iterator > k__ = equal_range(k);
+      size_type __n = 0;
+      __n = distance(k__.first, k__.last);
+      return  __n;
+  }
+  template<class Key,class Value,class KeyOfvale,class Compare,class ALloc>
+  tinystl::pair<typename rb_tree< Key, Value,KeyOfvale,Compare, ALloc>::iterator,bool>
+  rb_tree<Key,Value,KeyOfvale,Compare,ALloc>::insert_unique(const Value & v)
   {
     link_type y = header;
     link_type x =root();
