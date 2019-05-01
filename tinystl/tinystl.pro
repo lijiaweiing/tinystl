@@ -25,4 +25,6 @@ HEADERS += \
     stl_pair.h \
     stl_rb_tree.h \
     stl_heap.h \
-    stl_map.h
+    stl_map.h \
+    stl_set.h \
+    shared_ptr.h
